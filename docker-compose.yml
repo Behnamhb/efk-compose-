@@ -25,32 +25,18 @@ services:
       discovery.type: single-node
     networks:
       - elk
-
-  logstash:
-    build:
-      context: logstash/
-      args:
-        ELK_VERSION: $ELK_VERSION
+  fluentbit:
+    image: fluent/fluent-bit:1.4.4-debug
     volumes:
       - type: bind
-        source: ./logstash/config/logstash.yml
-        target: /usr/share/logstash/config/logstash.yml
+        source: ./fluent-bit/config/fluent-bit.conf
+        target: /fluent-bit/etc/fluent-bit.conf
         read_only: true
-      - type: bind
-        source: ./logstash/pipeline
-        target: /usr/share/logstash/pipeline
-        read_only: true
-    ports:
-      - "5000:5000/tcp"
-      - "5000:5000/udp"
-      - "9600:9600"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      - /var/log:/system/var/log
     networks:
       - elk
     depends_on:
       - elasticsearch
-
   kibana:
     build:
       context: kibana/
